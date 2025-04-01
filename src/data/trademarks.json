@@ -1,0 +1,20 @@
+{
+  "trademarks": [
+    {
+      "id": "1",
+      "tm": "Example Trademark",
+      "tm_jurisdiction": "United States",
+      "tm_reg_number": "12345678",
+      "tm_url": "https://example.com/trademark",
+      "created_at": "2024-03-30T14:17:38.006Z"
+    },
+    {
+      "id": "2",
+      "tm": "abcabc",
+      "tm_jurisdiction": "US",
+      "tm_reg_number": "12312",
+      "tm_url": "http://abc.com",
+      "created_at": "2025-04-01T09:13:06.073Z"
+    }
+  ]
+}

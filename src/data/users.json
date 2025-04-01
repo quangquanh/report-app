@@ -1,0 +1,26 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "username": "admin",
+      "password": "$2b$10$yFvFSwE.mG6xw/xwJJSLEuLty0DrzMAjTfF/oIDZDw.3adJpeDUEm",
+      "role": "admin",
+      "email": "admin@example.com",
+      "name": "Admin User",
+      "created_at": "2024-01-01T00:00:00.000Z",
+      "updated_at": "2025-04-01T07:56:57.386Z",
+      "default_data": {
+        "job": "ádfasdfasg",
+        "email": "admin@example.com",
+        "name": "Admin User",
+        "organization": "",
+        "relationship": "",
+        "relationship_other": "",
+        "owner_name": "",
+        "owner_country": "",
+        "address": "",
+        "phone": ""
+      }
+    }
+  ]
+}

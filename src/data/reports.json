@@ -1,0 +1,40 @@
+{
+  "reports": [
+    {
+      "job": "Photographer",
+      "email": "admin@example.com",
+      "name": "abc",
+      "organization": "Photographer",
+      "relationship": "owner",
+      "relationship_other": "owner",
+      "owner_name": "Photographer",
+      "owner_country": "VN",
+      "address": "Canh Nậu",
+      "original_type": "photo",
+      "original_urls": "https://www.google.com/url?sa=i&url=https%3A%2F%2Fchiemtaimobile.vn%2Ftin-cong-nghe%2Favatar-facebook-dep%2F&psig=AOvVaw2ZpCo5IdXH8SxyknRtJ8Ji&ust=1743430066364000&source=images&cd=vfe&opi=89978449&ved=0CBEQjRxqFwoTCIDeuaD9sYwDFQAAAAAdAAAAABAE",
+      "content_urls": "https://www.facebook.com/photo/?fbid=492575942887158&set=a.492575946220491",
+      "type": "Copyright",
+      "status": "failed",
+      "error_message": "{\"error\":{\"message\":\"(#3) Application does not have the capability to make this API call.\",\"type\":\"OAuthException\",\"code\":3,\"fbtrace_id\":\"AJdlGQ4_4cxZX9WBx4JQqgT\"}}",
+      "created_at": "2025-03-30T14:17:38.006Z"
+    },
+    {
+      "job": "Photographer",
+      "email": "admin@example.com",
+      "name": "abc",
+      "organization": "Photographer",
+      "relationship": "owner",
+      "relationship_other": "owner",
+      "owner_name": "Photographer",
+      "owner_country": "VN",
+      "address": "Canh Nậu",
+      "original_type": "photo",
+      "original_urls": "https://www.google.com/url?sa=i&url=https%3A%2F%2Fchiemtaimobile.vn%2Ftin-cong-nghe%2Favatar-facebook-dep%2F&psig=AOvVaw2ZpCo5IdXH8SxyknRtJ8Ji&ust=1743430066364000&source=images&cd=vfe&opi=89978449&ved=0CBEQjRxqFwoTCIDeuaD9sYwDFQAAAAAdAAAAABAE",
+      "content_urls": "https://www.facebook.com/photo/?fbid=492575942887158&set=a.492575946220491",
+      "type": "Copyright",
+      "status": "failed",
+      "error_message": "{\"error\":{\"message\":\"(#3) Application does not have the capability to make this API call.\",\"type\":\"OAuthException\",\"code\":3,\"fbtrace_id\":\"AwUSwIbmltAHln0kX95hjbR\"}}",
+      "created_at": "2025-03-30T14:17:42.277Z"
+    }
+  ]
+}
