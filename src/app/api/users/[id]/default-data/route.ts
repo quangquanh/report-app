@@ -2,13 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { promises as fs } from "fs";
 import path from "path";
 import { Any } from "@/type/common";
+type Params = Promise<{ id: string }>;
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Params }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
     if (!id) {
       return NextResponse.json({ error: "Missing user ID" }, { status: 400 });
     }
@@ -34,13 +35,12 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Params }
 ) {
   try {
-    if (!params?.id) {
-      return NextResponse.json({ error: "Missing user ID" }, { status: 400 });
-    }
-    const userId = params.id;
+    const { id } = await params;
+
+    const userId = id;
     const { default_data } = await request.json();
 
     const usersFilePath = path.join(process.cwd(), "src/data/users.json");

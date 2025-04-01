@@ -5,6 +5,7 @@ import bcrypt from "bcrypt";
 import { Any } from "@/type/common";
 
 const SALT_ROUNDS = 10;
+type Params = Promise<{ id: string }>;
 
 async function hashPassword(password: string) {
   return bcrypt.hash(password, SALT_ROUNDS);
@@ -12,10 +13,10 @@ async function hashPassword(password: string) {
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Params }
 ) {
   try {
-    const userId = params.id;
+    const userId = (await params).id;
     const userData = await request.json();
     const { email, password, name, role } = userData;
 
@@ -70,10 +71,10 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Params }
 ) {
   try {
-    const userId = params.id;
+    const userId = (await params).id;
     const usersFilePath = path.join(process.cwd(), "src/data/users.json");
     const usersData = await fs.readFile(usersFilePath, "utf8");
     const { users } = JSON.parse(usersData);
