@@ -57,7 +57,7 @@ const REPORT_TYPES = {
     "original_type",
     "content_urls",
   ],
-  Retractions: ["original_report_id", "content_urls", "retraction_reason"],
+  Retraction: ["original_report_id", "content_urls", "retraction_reason"],
 };
 
 async function sendFacebookReport(reportData: Any) {
@@ -103,7 +103,10 @@ export async function POST(request: NextRequest) {
 
     try {
       // Send report to Facebook
-      fbResponse = await sendFacebookReport(reportData);
+      fbResponse = await sendFacebookReport({
+        ...reportData,
+        type: type.toUpperCase(),
+      });
     } catch (error) {
       status = "failed";
       error_message = error instanceof Error ? error.message : String(error);

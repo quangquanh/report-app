@@ -28,3 +28,15 @@ body {
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.ant-btn {
+  border-radius: 5 !important;
+}
+
+.ant-input,
+.ant-input-textarea textarea,
+.ant-select-selector,
+.ant-card,
+.ant-modal-content {
+  border-radius: 5 !important;
+}

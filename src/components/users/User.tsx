@@ -88,7 +88,14 @@ export default function UsersPage() {
       setLoading(false);
     }
   };
-
+  const resetFields = () => {
+    form.setFieldsValue({
+      name: "",
+      email: "",
+      password: "",
+      role: "",
+    });
+  };
   const handleDelete = async (userId: number) => {
     try {
       if (currentUser && userId === currentUser.userId) {
@@ -157,10 +164,20 @@ export default function UsersPage() {
       <div style={{ padding: "24px" }}>
         <div>
           <Space direction="vertical" size="large" style={{ width: "100%" }}>
-            <Button type="primary" onClick={() => setIsModalOpen(true)}>
-              Add User
-            </Button>
-
+            <div className="flex justify-between px-1">
+              <div className="font-semibold text-base">User Management</div>
+              <Button
+                type="primary"
+                onClick={() => {
+                  setIsModalOpen(true);
+                  setEditingUser(null);
+                  form.resetFields();
+                  resetFields();
+                }}
+              >
+                Add User
+              </Button>
+            </div>
             <Modal
               title={editingUser ? "Edit User" : "Add New User"}
               open={isModalOpen}

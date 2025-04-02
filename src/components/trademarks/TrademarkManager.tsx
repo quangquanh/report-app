@@ -10,6 +10,7 @@ interface Trademark {
   tm_jurisdiction: string;
   tm_reg_number: string;
   tm_url: string;
+  classification?: string;
 }
 
 interface TrademarkManagerProps {
@@ -31,8 +32,17 @@ export default function TrademarkManager({
     tm_jurisdiction: "",
     tm_reg_number: "",
     tm_url: "",
+    classification: "",
   });
-
+  const resetFields = () => {
+    form.setFieldsValue({
+      tm: "",
+      tm_jurisdiction: "",
+      tm_reg_number: "",
+      tm_url: "",
+      classification: "",
+    });
+  };
   useEffect(() => {
     fetchTrademarks();
   }, []);
@@ -115,6 +125,7 @@ export default function TrademarkManager({
             setCurrentTrademark({});
             form.resetFields();
             setModalVisible(true);
+            resetFields();
           }}
         >
           Add New
@@ -149,6 +160,11 @@ export default function TrademarkManager({
                 {text}
               </a>
             ),
+          },
+          {
+            title: "Classification",
+            dataIndex: "classification",
+            key: "classification",
           },
           {
             title: "Actions",
@@ -224,10 +240,25 @@ export default function TrademarkManager({
           >
             <Input type="url" />
           </Form.Item>
+          <Form.Item
+            name="classification"
+            label="Trademark Classification"
+            rules={[
+              {
+                required: true,
+                message: "Please enter trademark classification",
+              },
+            ]}
+          >
+            <Input />
+          </Form.Item>
           <Form.Item className="flex justify-end">
             <Button
               type="default"
-              onClick={() => setModalVisible(false)}
+              onClick={() => {
+                setModalVisible(false);
+                form.resetFields();
+              }}
               className="mr-2"
             >
               Cancel

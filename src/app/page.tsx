@@ -17,6 +17,7 @@ import {
   Menu,
   Row,
   Col,
+  Tabs,
 } from "antd";
 import type { TableProps } from "antd/lib/table";
 import {
@@ -26,6 +27,7 @@ import {
 } from "@ant-design/icons";
 import UsersPage from "@/components/users/User";
 import TrademarkManager from "@/components/trademarks/TrademarkManager";
+import CopyrightManager from "@/components/copyrights/CopyrightManager";
 
 const { Header, Content, Sider } = Layout;
 const { Title, Text } = Typography;
@@ -82,7 +84,7 @@ const REPORT_TYPES = {
     "original_type",
     "content_urls",
   ],
-  Retractions: ["original_report_id", "content_urls", "retraction_reason"],
+  Retraction: ["original_report_id", "content_urls", "retraction_reason"],
 };
 
 export default function Home() {
@@ -91,12 +93,32 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isDefaultDataModalOpen, setIsDefaultDataModalOpen] = useState(false);
   const [form] = Form.useForm();
-  const [defaultDataForm] = Form.useForm();
-  const [currentUser, setCurrentUser] = useState<Any | null>(null);
   const [trademarks, setTrademarks] = useState<Any[]>([]);
+  const [copyrights, setCopyrights] = useState<Any[]>([]);
+  const [defaultData, setDefaultData] = useState<Any>({});
   const [selectedKey, setSelectedKey] = useState("reports");
+
+  useEffect(() => {
+    // Check if token exists in localStorage
+    const token = localStorage.getItem("token");
+    if (token) {
+      const user = JSON.parse(atob(token.split(".")[1]));
+      fetchUserDefaultData(user.userId);
+    }
+  }, []);
+
+  const fetchUserDefaultData = async (userId: number) => {
+    try {
+      const response = await fetch(`/api/users/${userId}/default-data`);
+      const data = await response.json();
+      if (data.default_data) {
+        setDefaultData(data.default_data);
+      }
+    } catch (error) {
+      console.error("Error fetching user default data:", error);
+    }
+  };
 
   const fetchTrademarks = async () => {
     try {
@@ -110,27 +132,16 @@ export default function Home() {
 
   useEffect(() => {
     fetchTrademarks();
+    fetchCopyrights();
   }, []);
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      const user = JSON.parse(atob(token.split(".")[1]));
-      setCurrentUser(user);
-      fetchUserDefaultData(user.userId);
-    }
-  }, []);
-
-  const fetchUserDefaultData = async (userId: number) => {
+  const fetchCopyrights = async () => {
     try {
-      const response = await fetch(`/api/users/${userId}/default-data`);
+      const response = await fetch("/api/copyrights");
       const data = await response.json();
-      console.log(data);
-      if (data.default_data) {
-        defaultDataForm.setFieldsValue(data.default_data);
-      }
+      setCopyrights(data);
     } catch (error) {
-      console.error("Error fetching user default data:", error);
+      console.error("Error fetching copyrights:", error);
     }
   };
 
@@ -159,7 +170,11 @@ export default function Home() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ ...values, type: reportType }),
+        body: JSON.stringify({
+          ...values,
+          original_urls: JSON.stringify(values.original_urls.split(",")),
+          type: reportType,
+        }),
       });
 
       if (!response.ok) {
@@ -211,7 +226,7 @@ export default function Home() {
       render: (date: string) => new Date(date).toLocaleString(),
     },
   ];
-
+  console.log(reportType);
   return (
     <Layout style={{ minHeight: "100vh" }}>
       <Header
@@ -231,7 +246,7 @@ export default function Home() {
       </Header>
       <Layout>
         <Sider
-          width={200}
+          width={250}
           theme="light"
           style={{ borderRight: "1px solid #f0f0f0" }}
         >
@@ -244,17 +259,18 @@ export default function Home() {
               {
                 key: "reports",
                 icon: <FileTextOutlined />,
-                label: "Reports",
+                label: "Complaint Management",
+              },
+
+              {
+                key: "trademarks",
+                icon: <TrademarkOutlined />,
+                label: "IP Management",
               },
               {
                 key: "users",
                 icon: <UserOutlined />,
-                label: "Users",
-              },
-              {
-                key: "trademarks",
-                icon: <TrademarkOutlined />,
-                label: "Trademarks",
+                label: "User Management",
               },
             ]}
           />
@@ -269,108 +285,17 @@ export default function Home() {
                 size="large"
                 style={{ width: "100%" }}
               >
-                <Space>
+                <div className="flex justify-between px-1">
+                  <div className="font-semibold text-base">
+                    Complaint Management
+                  </div>
                   <Button type="primary" onClick={() => setIsModalOpen(true)}>
-                    New Report
+                    New Complaint
                   </Button>
-                  <Button onClick={() => setIsDefaultDataModalOpen(true)}>
-                    Edit Default Data
-                  </Button>
-                </Space>
+                </div>
 
                 <Modal
-                  title="Edit Default Report Data"
-                  open={isDefaultDataModalOpen}
-                  onCancel={() => setIsDefaultDataModalOpen(false)}
-                  footer={null}
-                  width={600}
-                >
-                  <Form
-                    form={defaultDataForm}
-                    layout="vertical"
-                    initialValues={currentUser?.default_data}
-                    onFinish={async (values) => {
-                      try {
-                        const response = await fetch(
-                          `/api/users/${currentUser?.userId}/default-data`,
-                          {
-                            method: "PUT",
-                            headers: {
-                              "Content-Type": "application/json",
-                            },
-                            body: JSON.stringify({ default_data: values }),
-                          }
-                        );
-
-                        if (response.ok) {
-                          message.success("Default data updated successfully");
-                          setIsDefaultDataModalOpen(false);
-                          form.setFieldsValue(values);
-                        } else {
-                          throw new Error("Failed to update default data");
-                        }
-                        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                      } catch (error) {
-                        message.error("Failed to update default data");
-                      }
-                    }}
-                  >
-                    <Row gutter={16}>
-                      <Col span={12}>
-                        <Form.Item name="job" label="Job">
-                          <Input />
-                        </Form.Item>
-                        <Form.Item name="email" label="Email">
-                          <Input type="email" />
-                        </Form.Item>
-                        <Form.Item name="name" label="Name">
-                          <Input />
-                        </Form.Item>
-                        <Form.Item name="organization" label="Organization">
-                          <Input />
-                        </Form.Item>
-                        <Form.Item name="relationship" label="Relationship">
-                          <Input />
-                        </Form.Item>
-                      </Col>
-                      <Col span={12}>
-                        <Form.Item
-                          name="relationship_other"
-                          label="Relationship Other"
-                        >
-                          <Input />
-                        </Form.Item>
-                        <Form.Item name="owner_name" label="Owner Name">
-                          <Input />
-                        </Form.Item>
-                        <Form.Item name="owner_country" label="Owner Country">
-                          <Input />
-                        </Form.Item>
-                        <Form.Item name="address" label="Address">
-                          <Input.TextArea />
-                        </Form.Item>
-                        <Form.Item name="phone" label="Phone">
-                          <Input />
-                        </Form.Item>
-                      </Col>
-                    </Row>
-                    <Form.Item>
-                      <Space>
-                        <Button
-                          onClick={() => setIsDefaultDataModalOpen(false)}
-                        >
-                          Cancel
-                        </Button>
-                        <Button type="primary" htmlType="submit">
-                          Save Default Data
-                        </Button>
-                      </Space>
-                    </Form.Item>
-                  </Form>
-                </Modal>
-
-                <Modal
-                  title="Submit New Report"
+                  title="Submit New Complaint"
                   open={isModalOpen}
                   onCancel={() => {
                     setIsModalOpen(false);
@@ -387,11 +312,11 @@ export default function Home() {
                     requiredMark="optional"
                   >
                     <Form.Item
-                      label="Report Type"
+                      label="Complaint Type"
                       name="type"
                       rules={[
                         {
-                          required: true,
+                          // required: true,
                           message: "Please select a report type",
                         },
                       ]}
@@ -401,9 +326,8 @@ export default function Home() {
                         onChange={(value) => {
                           setReportType(value);
                           form.resetFields();
-                          if (value && defaultDataForm.getFieldsValue()) {
-                            const defaultValues =
-                              defaultDataForm.getFieldsValue();
+                          if (value && defaultData) {
+                            const defaultValues = defaultData;
                             const reportFields =
                               REPORT_TYPES[value as keyof typeof REPORT_TYPES];
                             const filteredDefaultValues = Object.fromEntries(
@@ -412,6 +336,7 @@ export default function Home() {
                               )
                             );
                             form.setFieldsValue(filteredDefaultValues);
+                            form.setFieldValue("type", value);
                           }
                         }}
                         placeholder="Select a type"
@@ -424,62 +349,311 @@ export default function Home() {
                       </Select>
                     </Form.Item>
 
-                    {reportType &&
-                      REPORT_TYPES[reportType as keyof typeof REPORT_TYPES].map(
-                        (field) => (
-                          <Form.Item
-                            key={field}
-                            label={
-                              field.charAt(0).toUpperCase() +
-                              field.slice(1).replace("_", " ")
-                            }
-                            name={field}
-                            rules={[
-                              {
-                                required: true,
-                                message: `Please input ${field}`,
-                              },
-                            ]}
-                          >
-                            {field === "content_urls" ||
-                            field === "original_urls" ? (
-                              <TextArea rows={3} />
-                            ) : field === "email" ? (
-                              <Input type="email" />
-                            ) : field === "tm" ? (
-                              <Select
-                                placeholder="Select a trademark"
-                                onChange={(value) => {
-                                  const selectedTrademark = trademarks.find(
-                                    (tm) => tm.id === value
-                                  );
-                                  if (selectedTrademark) {
-                                    form.setFieldsValue({
-                                      tm: selectedTrademark.tm,
-                                      tm_jurisdiction:
-                                        selectedTrademark.tm_jurisdiction,
-                                      tm_reg_number:
-                                        selectedTrademark.tm_reg_number,
-                                      tm_url: selectedTrademark.tm_url,
-                                    });
-                                  }
-                                }}
+                    {reportType && (
+                      <Row gutter={16}>
+                        <Col span={12}>
+                          {REPORT_TYPES[reportType as keyof typeof REPORT_TYPES]
+                            .slice(
+                              0,
+                              Math.ceil(
+                                REPORT_TYPES[
+                                  reportType as keyof typeof REPORT_TYPES
+                                ].length / 2
+                              )
+                            )
+                            .map((field) => (
+                              <Form.Item
+                                key={field}
+                                label={
+                                  field.charAt(0).toUpperCase() +
+                                  field.slice(1).replace("_", " ")
+                                }
+                                name={field}
+                                rules={[
+                                  {
+                                    required: true,
+                                    message: `Please input ${field}`,
+                                  },
+                                ]}
                               >
-                                {trademarks.map((trademark) => (
-                                  <Select.Option
-                                    key={trademark.id}
-                                    value={trademark.id}
+                                {field === "content_urls" ||
+                                field === "original_urls" ? (
+                                  <div>
+                                    <TextArea rows={3} />
+                                  </div>
+                                ) : field === "original_urls" &&
+                                  reportType === "Copyright" ? (
+                                  <Select
+                                    placeholder="Select a copyright"
+                                    onChange={(value) => {
+                                      const selectedCopyright = copyrights.find(
+                                        (cp) => cp.id === value
+                                      );
+                                      if (selectedCopyright) {
+                                        form.setFieldsValue({
+                                          original_urls:
+                                            selectedCopyright.original_urls.join(
+                                              "\n"
+                                            ),
+                                        });
+                                      }
+                                    }}
                                   >
-                                    {trademark.tm}
-                                  </Select.Option>
-                                ))}
-                              </Select>
-                            ) : (
-                              <Input />
-                            )}
-                          </Form.Item>
-                        )
-                      )}
+                                    {copyrights.map((copyright) => (
+                                      <Select.Option
+                                        key={copyright.id}
+                                        value={copyright.id}
+                                      >
+                                        {copyright.title}
+                                      </Select.Option>
+                                    ))}
+                                  </Select>
+                                ) : field === "original_type" ? (
+                                  <Select placeholder="Select original type">
+                                    <Select.Option value="PHOTO">
+                                      PHOTO
+                                    </Select.Option>
+                                    <Select.Option value="VIDEO">
+                                      VIDEO
+                                    </Select.Option>
+                                    <Select.Option value="ARTWORK">
+                                      ARTWORK
+                                    </Select.Option>
+                                    <Select.Option value="SOFTWARE">
+                                      SOFTWARE
+                                    </Select.Option>
+                                    <Select.Option value="NAME">
+                                      NAME
+                                    </Select.Option>
+                                    <Select.Option value="CHARACTER">
+                                      CHARACTER
+                                    </Select.Option>
+                                    <Select.Option value="OTHER">
+                                      OTHER
+                                    </Select.Option>
+                                  </Select>
+                                ) : field === "email" ? (
+                                  <Input type="email" />
+                                ) : field === "tm" &&
+                                  (reportType === "Trademark" ||
+                                    reportType === "Counterfeit") ? (
+                                  <Select
+                                    placeholder="Select a trademark"
+                                    onChange={(value) => {
+                                      const selectedTrademark = trademarks.find(
+                                        (tm) => tm.id === value
+                                      );
+                                      if (selectedTrademark) {
+                                        form.setFieldsValue({
+                                          tm: selectedTrademark.tm,
+                                          tm_jurisdiction:
+                                            selectedTrademark.tm_jurisdiction,
+                                          tm_reg_number:
+                                            selectedTrademark.tm_reg_number,
+                                          tm_url: selectedTrademark.tm_url,
+                                        });
+                                      }
+                                    }}
+                                  >
+                                    {trademarks.map((trademark) => (
+                                      <Select.Option
+                                        key={trademark.id}
+                                        value={trademark.id}
+                                      >
+                                        {trademark.tm}
+                                      </Select.Option>
+                                    ))}
+                                  </Select>
+                                ) : field === "relationship" ? (
+                                  <Select placeholder="Select relationship type">
+                                    <Select.Option value="OWNER">
+                                      OWNER
+                                    </Select.Option>
+                                    <Select.Option value="COUNSEL">
+                                      COUNSEL
+                                    </Select.Option>
+                                    <Select.Option value="EMPLOYEE">
+                                      EMPLOYEE
+                                    </Select.Option>
+                                    <Select.Option value="AGENT">
+                                      AGENT
+                                    </Select.Option>
+                                    <Select.Option value="OTHER">
+                                      OTHER
+                                    </Select.Option>
+                                  </Select>
+                                ) : (
+                                  <Input />
+                                )}
+                              </Form.Item>
+                            ))}
+                        </Col>
+                        <Col span={12}>
+                          {REPORT_TYPES[reportType as keyof typeof REPORT_TYPES]
+                            .slice(
+                              Math.ceil(
+                                REPORT_TYPES[
+                                  reportType as keyof typeof REPORT_TYPES
+                                ].length / 2
+                              )
+                            )
+                            .map((field) => (
+                              <Form.Item
+                                key={field}
+                                label={
+                                  field.charAt(0).toUpperCase() +
+                                  field.slice(1).replace("_", " ")
+                                }
+                                name={field}
+                                rules={[
+                                  {
+                                    required: true,
+                                    message: `Please input ${field}`,
+                                  },
+                                ]}
+                              >
+                                {field === "content_urls" ||
+                                field === "original_urls" ? (
+                                  reportType === "Copyright" ? (
+                                    <Select
+                                      placeholder="Select a copyright"
+                                      className="mb-1"
+                                      onChange={(value) => {
+                                        const selectedCopyright =
+                                          copyrights.find(
+                                            (cp) => cp.id === value
+                                          );
+                                        if (selectedCopyright) {
+                                          form.setFieldValue(
+                                            "original_urls",
+                                            selectedCopyright.original_urls.join(
+                                              ""
+                                            )
+                                          );
+                                        }
+                                      }}
+                                    >
+                                      {copyrights.map((copyright) => (
+                                        <Select.Option
+                                          key={copyright.id}
+                                          value={copyright.id}
+                                        >
+                                          {copyright.title}
+                                        </Select.Option>
+                                      ))}
+                                    </Select>
+                                  ) : (
+                                    <TextArea rows={3} />
+                                  )
+                                ) : field === "original_type" ? (
+                                  <Select placeholder="Select original type">
+                                    <Select.Option value="PHOTO">
+                                      PHOTO
+                                    </Select.Option>
+                                    <Select.Option value="VIDEO">
+                                      VIDEO
+                                    </Select.Option>
+                                    <Select.Option value="ARTWORK">
+                                      ARTWORK
+                                    </Select.Option>
+                                    <Select.Option value="SOFTWARE">
+                                      SOFTWARE
+                                    </Select.Option>
+                                    <Select.Option value="NAME">
+                                      NAME
+                                    </Select.Option>
+                                    <Select.Option value="CHARACTER">
+                                      CHARACTER
+                                    </Select.Option>
+                                    <Select.Option value="OTHER">
+                                      OTHER
+                                    </Select.Option>
+                                  </Select>
+                                ) : field === "email" ? (
+                                  <Input type="email" />
+                                ) : field === "tm" &&
+                                  (reportType === "Trademark" ||
+                                    reportType === "Counterfeit") ? (
+                                  <Select
+                                    placeholder="Select a trademark"
+                                    onChange={(value) => {
+                                      const selectedTrademark = trademarks.find(
+                                        (tm) => tm.id === value
+                                      );
+                                      if (selectedTrademark) {
+                                        form.setFieldsValue({
+                                          tm: selectedTrademark.tm,
+                                          tm_jurisdiction:
+                                            selectedTrademark.tm_jurisdiction,
+                                          tm_reg_number:
+                                            selectedTrademark.tm_reg_number,
+                                          tm_url: selectedTrademark.tm_url,
+                                        });
+                                      }
+                                    }}
+                                  >
+                                    {trademarks.map((trademark) => (
+                                      <Select.Option
+                                        key={trademark.id}
+                                        value={trademark.id}
+                                      >
+                                        {trademark.tm}
+                                      </Select.Option>
+                                    ))}
+                                  </Select>
+                                ) : field === "original_urls" &&
+                                  reportType === "Copyright" ? (
+                                  <Select
+                                    placeholder="Select a copyright"
+                                    onChange={(value) => {
+                                      const selectedCopyright = copyrights.find(
+                                        (cp) => cp.id === value
+                                      );
+                                      if (selectedCopyright) {
+                                        form.setFieldsValue({
+                                          original_urls:
+                                            selectedCopyright.original_urls.join(
+                                              "\n"
+                                            ),
+                                        });
+                                      }
+                                    }}
+                                  >
+                                    {copyrights.map((copyright) => (
+                                      <Select.Option
+                                        key={copyright.id}
+                                        value={copyright.id}
+                                      >
+                                        {copyright.title}
+                                      </Select.Option>
+                                    ))}
+                                  </Select>
+                                ) : field === "relationship" ? (
+                                  <Select placeholder="Select relationship type">
+                                    <Select.Option value="OWNER">
+                                      OWNER
+                                    </Select.Option>
+                                    <Select.Option value="COUNSEL">
+                                      COUNSEL
+                                    </Select.Option>
+                                    <Select.Option value="EMPLOYEE">
+                                      EMPLOYEE
+                                    </Select.Option>
+                                    <Select.Option value="AGENT">
+                                      AGENT
+                                    </Select.Option>
+                                    <Select.Option value="OTHER">
+                                      OTHER
+                                    </Select.Option>
+                                  </Select>
+                                ) : (
+                                  <Input />
+                                )}
+                              </Form.Item>
+                            ))}
+                        </Col>
+                      </Row>
+                    )}
 
                     {error && (
                       <Form.Item>
@@ -510,7 +684,7 @@ export default function Home() {
                   </Form>
                 </Modal>
 
-                <Card title="Submitted Reports">
+                <Card>
                   <Table
                     columns={columns}
                     dataSource={reports.map((report, index) => ({
@@ -545,7 +719,23 @@ export default function Home() {
               </Space>
             )}
             {selectedKey === "users" && <UsersPage />}
-            {selectedKey === "trademarks" && <TrademarkManager />}
+            {selectedKey === "trademarks" && (
+              <Tabs
+                defaultActiveKey="trademark"
+                items={[
+                  {
+                    key: "trademark",
+                    label: "Trademark Management",
+                    children: <TrademarkManager />,
+                  },
+                  {
+                    key: "copyright",
+                    label: "Copyright Management",
+                    children: <CopyrightManager />,
+                  },
+                ]}
+              />
+            )}
           </Content>
         </Layout>
       </Layout>

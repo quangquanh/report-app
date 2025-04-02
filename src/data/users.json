@@ -8,19 +8,28 @@
       "email": "admin@example.com",
       "name": "Admin User",
       "created_at": "2024-01-01T00:00:00.000Z",
-      "updated_at": "2025-04-01T07:56:57.386Z",
+      "updated_at": "2025-04-02T00:42:30.168Z",
       "default_data": {
         "job": "ádfasdfasg",
         "email": "admin@example.com",
         "name": "Admin User",
-        "organization": "",
-        "relationship": "",
-        "relationship_other": "",
-        "owner_name": "",
-        "owner_country": "",
-        "address": "",
-        "phone": ""
+        "organization": "abc",
+        "relationship": "OWNER",
+        "relationship_other": "abc",
+        "owner_name": "abc",
+        "owner_country": "abc",
+        "address": "abc",
+        "phone": "0978801140"
       }
+    },
+    {
+      "id": 2,
+      "email": "user1@gmail.com",
+      "password": "$2b$10$Qe5s0ujz1oxlXVpfGuoaDOlR0E0vvS1Z0Tc1NjzwyrQT.ukJON0Gm",
+      "name": "user1",
+      "role": "user",
+      "created_at": "2025-04-01T12:28:03.261Z",
+      "updated_at": "2025-04-01T12:28:03.261Z"
     }
   ]
 }
