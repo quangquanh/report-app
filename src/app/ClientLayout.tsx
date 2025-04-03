@@ -69,7 +69,7 @@ export default function ClientLayout({
       document.removeEventListener("login", handleStorageChange);
     };
   }, []);
-console.log(currentUser);
+
   return (
     <Layout style={{ minHeight: "100vh" }}>
       <Header
