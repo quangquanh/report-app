@@ -165,3 +165,48 @@ export async function GET() {
     );
   }
 }
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get("id");
+
+    if (!id) {
+      return NextResponse.json(
+        { error: "Report ID is required" },
+        { status: 400 }
+      );
+    }
+
+    // Read existing reports
+    const reportsFilePath = path.join(process.cwd(), "src/data/reports.json");
+    const reportsData = await fs.readFile(reportsFilePath, "utf8");
+    const { reports } = JSON.parse(reportsData);
+
+    // Convert id to number and check if it's valid
+    const index = parseInt(id);
+    if (isNaN(index) || index < 0 || index >= reports.length) {
+      return NextResponse.json(
+        { error: "Invalid report index" },
+        { status: 400 }
+      );
+    }
+
+    // Remove the report at the specified index
+    reports.splice(index, 1);
+
+    // Write updated reports back to file
+    await fs.writeFile(reportsFilePath, JSON.stringify({ reports }, null, 2));
+
+    return NextResponse.json({
+      success: true,
+      message: "Report deleted successfully",
+    });
+  } catch (error) {
+    console.error("Delete report error:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}

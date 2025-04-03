@@ -98,6 +98,7 @@ export default function Home() {
   const [copyrights, setCopyrights] = useState<Any[]>([]);
   const [defaultData, setDefaultData] = useState<Any>({});
   const [selectedKey, setSelectedKey] = useState("reports");
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     // Check if token exists in localStorage
@@ -157,6 +158,31 @@ export default function Home() {
     } catch (error) {
       console.error("Error fetching reports:", error);
       setError("Failed to load reports");
+    }
+  };
+
+  const handleDeleteReport = async (index: number) => {
+    try {
+
+      const c = confirm("Are you sure you want to delete this Complaint?");
+      if (!c) return;
+      // Calculate ID based on page number and index
+      const id = (currentPage - 1) * 10 + index;
+      
+      const response = await fetch(`/api/reports?id=${id}`, {
+        method: 'DELETE',
+      });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to delete report');
+      }
+
+      // Refresh reports list
+      fetchReports();
+      message.success('Report deleted successfully');
+    } catch (error) {
+      message.error(error instanceof Error ? error.message : 'Failed to delete report');
     }
   };
 
@@ -225,8 +251,23 @@ export default function Home() {
       key: "created_at",
       render: (date: string) => new Date(date).toLocaleString(),
     },
+    {
+      title: "Actions",
+      key: "actions",
+      render: (_,_r,index) => (
+        <Space>
+          <Button 
+            type="primary" 
+            danger 
+            onClick={() => handleDeleteReport(index)}
+          >
+            Delete
+          </Button>
+        </Space>
+      ),
+    },
   ];
-  console.log(reportType);
+
   return (
     <Layout style={{ minHeight: "100vh" }}>
       <Header
@@ -512,7 +553,9 @@ export default function Home() {
                                   },
                                 ]}
                               >
-                                {field === "content_urls" ||
+                                {field === "content_urls"  ? (
+                                    <TextArea rows={3} />
+                                  ):
                                 field === "original_urls" ? (
                                   reportType === "Copyright" ? (
                                     <Select
@@ -691,6 +734,10 @@ export default function Home() {
                       ...report,
                       key: index,
                     }))}
+                    pagination={{
+                      current: currentPage,
+                      onChange: (page) => setCurrentPage(page),
+                    }}
                     expandable={{
                       expandedRowRender: (record) => (
                         <Space direction="vertical" style={{ width: "100%" }}>

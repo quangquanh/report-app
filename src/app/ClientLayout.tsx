@@ -69,7 +69,7 @@ export default function ClientLayout({
       document.removeEventListener("login", handleStorageChange);
     };
   }, []);
-
+console.log(currentUser);
   return (
     <Layout style={{ minHeight: "100vh" }}>
       <Header
@@ -147,9 +147,10 @@ export default function ClientLayout({
             layout="vertical"
             initialValues={currentUser?.default_data}
             onFinish={async (values) => {
+              console.log(currentUser);
               try {
                 const response = await fetch(
-                  `/api/users/${currentUser?.userId}/default-data`,
+                  `/api/users/${currentUser?.userId || currentUser?.id}/default-data`,
                   {
                     method: "PUT",
                     headers: {
