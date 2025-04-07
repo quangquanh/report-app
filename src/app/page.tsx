@@ -163,26 +163,27 @@ export default function Home() {
 
   const handleDeleteReport = async (index: number) => {
     try {
-
       const c = confirm("Are you sure you want to delete this Complaint?");
       if (!c) return;
       // Calculate ID based on page number and index
       const id = (currentPage - 1) * 10 + index;
-      
+
       const response = await fetch(`/api/reports?id=${id}`, {
-        method: 'DELETE',
+        method: "DELETE",
       });
-      
+
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || 'Failed to delete report');
+        throw new Error(error.error || "Failed to delete report");
       }
 
       // Refresh reports list
       fetchReports();
-      message.success('Report deleted successfully');
+      message.success("Report deleted successfully");
     } catch (error) {
-      message.error(error instanceof Error ? error.message : 'Failed to delete report');
+      message.error(
+        error instanceof Error ? error.message : "Failed to delete report"
+      );
     }
   };
 
@@ -254,11 +255,11 @@ export default function Home() {
     {
       title: "Actions",
       key: "actions",
-      render: (_,_r,index) => (
+      render: (_, _r, index) => (
         <Space>
-          <Button 
-            type="primary" 
-            danger 
+          <Button
+            type="primary"
+            danger
             onClick={() => handleDeleteReport(index)}
           >
             Delete
@@ -553,10 +554,9 @@ export default function Home() {
                                   },
                                 ]}
                               >
-                                {field === "content_urls"  ? (
-                                    <TextArea rows={3} />
-                                  ):
-                                field === "original_urls" ? (
+                                {field === "content_urls" ? (
+                                  <TextArea rows={3} />
+                                ) : field === "original_urls" ? (
                                   reportType === "Copyright" ? (
                                     <Select
                                       placeholder="Select a copyright"
