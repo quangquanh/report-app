@@ -96,20 +96,13 @@ export default function ClientLayout({
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            background: "#1877F2",
+            background: "#fff",
             padding: "0 50px",
             boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-            <img
-              src="/logo.png"
-              alt="Logo"
-              style={{ height: "32px", width: "auto" }}
-            />
-            <span style={{ fontSize: "18px", fontWeight: 600, color: "#fff" }}>
-              Ogival IP Protection
-            </span>
+            <img src="/login-logo.png" alt="Logo" style={{ width: 170 }} />
           </div>
           {showLogout && (
             <Dropdown
@@ -134,7 +127,7 @@ export default function ClientLayout({
             >
               <div
                 className="mr-4 flex gap-1 items-center"
-                style={{ color: "white", cursor: "pointer" }}
+                style={{ color: "black", cursor: "pointer" }}
               >
                 {currentUser?.email || "User"}{" "}
                 <svg

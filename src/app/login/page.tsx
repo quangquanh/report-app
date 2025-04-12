@@ -38,7 +38,7 @@ export default function LoginPage() {
     <div className="min-h-screen flex flex-col items-center justify-center p-8 bg-white">
       <div className="mb-8 text-center">
         <h1 className="text-2xl font-bold text-gray-800">
-          Ogival IP Protection
+          <img width={170} src="/login-logo.png" alt="" />
         </h1>
       </div>
 

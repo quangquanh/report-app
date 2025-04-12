@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import ClientLayout from "./ClientLayout";
 import { ConfigProvider } from "antd";
-import './globals.css'
+import "./globals.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Ogival IP Protection",
-  description: "Ogival IP Protection",
+  title: "Dashboard | IPRPShield",
+  description: "Dashboard | IPRPShield",
 };
 
 export default function RootLayout({
